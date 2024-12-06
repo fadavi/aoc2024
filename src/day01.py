@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from functools import reduce
 from load_input import load_input
 
 
@@ -13,6 +14,9 @@ def main():
 
     total_distance = calc_total_distance(left_list, right_list)
     print("Part1 - Total distance:", total_distance)
+
+    similarity_score = calc_similarity_score(left_list, right_list)
+    print("Part2 - Similarity score:", similarity_score)
 
 
 def parse_input(input_str: str):
@@ -29,6 +33,27 @@ def parse_input(input_str: str):
 def calc_total_distance(left_list: IntList, right_list: IntList):
     distances = (abs(l - r) for l, r in zip(left_list, right_list))
     return sum(distances)
+
+
+def prepare_freq_dict(data: IntList):
+    return reduce(
+        lambda acc, n: {**acc, n: acc.get(n, 0) + 1},
+        data,
+        {},
+    )
+
+
+def calc_similarity_score(left_list: IntList, right_list: IntList):
+    left_freq = prepare_freq_dict(left_list)
+    right_freq = prepare_freq_dict(right_list)
+
+    score = 0
+
+    for val, l_freq in left_freq.items():
+        r_freq = right_freq.get(val, 0)
+        score += l_freq * r_freq * val
+
+    return score
 
 
 if __name__ == "__main__":
