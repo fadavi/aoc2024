@@ -10,13 +10,8 @@ def main():
     input_str = load_input("day01.txt")
     left_list, right_list = parse_input(input_str)
 
-    left_list = sorted(left_list)
-    right_list = sorted(right_list)
-
-    distances = (abs(l - r) for l, r in zip(left_list, right_list))
-    total_distance = sum(distances)
-
-    print("Total distance:", total_distance)
+    total_distance = calc_total_distance(left_list, right_list)
+    print("Part1 - Total distance:", total_distance)
 
 
 def parse_input(input_str: str):
@@ -27,7 +22,12 @@ def parse_input(input_str: str):
         left_list.append(int(left))
         right_list.append(int(right))
 
-    return left_list, right_list
+    return sorted(left_list), sorted(right_list)
+
+
+def calc_total_distance(left_list: list[int], right_list: list[int]):
+    distances = (abs(l - r) for l, r in zip(left_list, right_list))
+    return sum(distances)
 
 
 if __name__ == "__main__":
