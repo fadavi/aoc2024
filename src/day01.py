@@ -3,6 +3,7 @@
 from load_input import load_input
 
 
+IntList = list[int]
 DELIM = "   "
 
 
@@ -25,7 +26,7 @@ def parse_input(input_str: str):
     return sorted(left_list), sorted(right_list)
 
 
-def calc_total_distance(left_list: list[int], right_list: list[int]):
+def calc_total_distance(left_list: IntList, right_list: IntList):
     distances = (abs(l - r) for l, r in zip(left_list, right_list))
     return sum(distances)
 
