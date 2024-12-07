@@ -4,11 +4,11 @@ import sys
 
 
 dirname = path.dirname(__file__)
-inputs_dir = path.join(dirname, '..', 'inputs')
+inputs_dir = path.join(dirname, "..", "inputs")
 
 
 def load_input(name: str) -> str:
-    file_path = path.join(inputs_dir, name) 
+    file_path = path.join(inputs_dir, name)
     try:
         with open(file_path) as input_file:
             return input_file.read().strip()

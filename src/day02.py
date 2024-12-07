@@ -10,6 +10,7 @@ MIN_SAFE_DIFF, MAX_SAFE_DIFF = 1, 3
 Level = int
 Report = list[Level]
 
+
 def main():
     input_str = load_input("day02.txt")
     reports = parse_input(input_str)
@@ -33,9 +34,8 @@ def parse_input(input_str: str):
 
 
 def is_safe(report: Report, tolerance=0):
-    return (
-        is_increasing_safe(report, tolerance) or
-        is_increasing_safe(reversed(report), tolerance)
+    return is_increasing_safe(report, tolerance) or is_increasing_safe(
+        reversed(report), tolerance
     )
 
 

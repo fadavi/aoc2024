@@ -1,7 +1,7 @@
 import logging
 
 
-LOGGER_NAME = 'AOC2024'
+LOGGER_NAME = "AOC2024"
 LOG_LEVEL = logging.DEBUG
 FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
