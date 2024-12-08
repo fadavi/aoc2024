@@ -113,13 +113,13 @@ class AntennasMap {
 
     const ans = [p1, p2]
 
-    while(this.contains([a1x, a1y])) {
+    while (this.contains([a1x, a1y])) {
       ans.push([a1x, a1y])
       a1x -= dx
       a1y -= dy
     }
 
-    while(this.contains([a2x, a2y])) {
+    while (this.contains([a2x, a2y])) {
       ans.push([a2x, a2y])
       a2x += dx
       a2y += dy
@@ -133,11 +133,17 @@ const main = () => {
   const input = loadInput()
   const map = AntennasMap.parse(input)
 
-  const nAntinodes = map.countUniqueAntinodes()
-  console.log('Part 1:', nAntinodes)
+  const parts = process.argv[2] || 'part1,part2'
 
-  const nAntinodesRepeat = map.countUniqueAntinodes(true)
-  console.log('Part 2:', nAntinodesRepeat)
+  if (parts.includes('part1')) {
+    const nAntinodes = map.countUniqueAntinodes()
+    console.log('Part 1:', nAntinodes)
+  }
+
+  if (parts.includes('part2')) {
+    const nAntinodesRepeat = map.countUniqueAntinodes(true)
+    console.log('Part 2:', nAntinodesRepeat)
+  }
 }
 
 if (require.main === module) {
