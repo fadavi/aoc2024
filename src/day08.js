@@ -7,19 +7,19 @@ const INPUT_PATH = join(__dirname, '..', 'inputs', 'day08.txt')
 const [X, Y] = [0, 1]
 
 /** @typedef {[number, number]} Point */
-/** @typedef {Map<string, Point[]>} AntennasMap */
-/** @typedef {Set<string>} AntinodeSet */
+/** @typedef {Map<string, Point[]>} FreqToPointsMap */
+/** @typedef {Set<string>} StringSet */
 
 const loadInput = (inputPath = INPUT_PATH) => {
   return fs.readFileSync(inputPath).toString().trim()
 }
 
 /**
- * @param {AntennasMap} antennas
+ * @param {FreqToPointsMap} antennas
  * @param {string} freq
  * @param {Point} pos
  */
-const appendAntenna = (antennas, freq, pos) => {
+const pushValue = (antennas, freq, pos) => {
   points = antennas.get(freq)
   if (points === undefined) {
     antennas.set(freq, [pos])
@@ -30,12 +30,12 @@ const appendAntenna = (antennas, freq, pos) => {
 
 class AntennasMap {
   /**
-   * @param {AntennasMap} map
+   * @param {FreqToPointsMap} map
    * @param {number} width
    * @param {number} height
    */
   constructor(map, width, height) {
-    /** @type {AntennasMap} */
+    /** @type {FreqToPointsMap} */
     this._antennas = map
 
     /** @type {number} */
@@ -47,6 +47,7 @@ class AntennasMap {
 
   /** @param {string} gridStr */
   static parse(gridStr) {
+    /** @type {FreqToPointsMap} */
     const map = new Map()
     const rows = gridStr.split('\n').map(line => line.split(''))
 
@@ -58,12 +59,12 @@ class AntennasMap {
 
       for (const [x, freq] of row.entries()) {
         if (freq !== '.') {
-          appendAntenna(map, freq, [x, y])
+          pushValue(map, freq, [x, y])
         }
       }
     }
 
-    return new AntennasMap(map, width, height)
+    return new this(map, width, height)
   }
 
   /** @param {Point} _ */
@@ -72,6 +73,7 @@ class AntennasMap {
   }
 
   countUniqueAntinodes(repeat = false) {
+    /** @type {StringSet} */
     const antinodes = new Set()
 
     for (const freqPoints of this._antennas.values()) {
