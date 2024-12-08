@@ -8,7 +8,7 @@ const [X, Y] = [0, 1]
 
 /** @typedef {[number, number]} Point */
 /** @typedef {Map<string, Point[]>} FreqToPointsMap */
-/** @typedef {Set<string>} StringSet */
+/** @typedef {Set<number>} NumberSet */
 
 const loadInput = (inputPath = INPUT_PATH) => {
   return fs.readFileSync(inputPath).toString().trim()
@@ -21,12 +21,15 @@ const loadInput = (inputPath = INPUT_PATH) => {
  */
 const pushValue = (antennas, freq, pos) => {
   points = antennas.get(freq)
-  if (points === undefined) {
-    antennas.set(freq, [pos])
-  } else {
+  if (points) {
     points.push(pos)
+  } else {
+    antennas.set(freq, [pos])
   }
 }
+
+/** @param {Point} _ */
+const hashPoint = ([x, y]) => (x << 10) ^ y
 
 class AntennasMap {
   /**
@@ -76,7 +79,7 @@ class AntennasMap {
   }
 
   countUniqueAntinodes(repeat = false) {
-    /** @type {StringSet} */
+    /** @type {NumberSet} */
     const antinodes = new Set()
 
     for (const freqPoints of this._antennas.values()) {
@@ -88,7 +91,7 @@ class AntennasMap {
           const pj = freqPoints[j]
           const ans = this._getAntinodes(pi, pj, repeat)
           for (const an of ans) {
-            antinodes.add(an.join(','))
+            antinodes.add(hashPoint(an))
           }
         }
       }
