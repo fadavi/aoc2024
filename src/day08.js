@@ -160,5 +160,9 @@ const main = () => {
 }
 
 if (require.main === module) {
+  const start = performance.now()
   main()
+  const end = performance.now()
+
+  console.log(`Elapsed time: ${(end - start).toFixed(3)}ms`)
 }
