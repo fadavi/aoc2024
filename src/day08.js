@@ -67,8 +67,11 @@ class AntennasMap {
     return new this(map, width, height)
   }
 
-  /** @param {Point} _ */
-  contains([x, y]) {
+  /**
+   * @param {number}
+   * @param {number}
+   */
+  _contains(x, y) {
     return 0 <= x && x < this._width && 0 <= y && y < this._height
   }
 
@@ -85,9 +88,7 @@ class AntennasMap {
           const pj = freqPoints[j]
           const ans = this._getAntinodes(pi, pj, repeat)
           for (const an of ans) {
-            if (this.contains(an)) {
-              antinodes.add(an.join(','))
-            }
+            antinodes.add(an.join(','))
           }
         }
       }
@@ -103,26 +104,29 @@ class AntennasMap {
   _getAntinodes(p1, p2, repeat = false) {
     const dx = p2[X] - p1[X]
     const dy = p2[Y] - p1[Y]
-
     let a1x = p1[X] - dx
     let a1y = p1[Y] - dy
     let a2x = p2[X] + dx
     let a2y = p2[Y] + dy
 
-    if (!repeat) {
-      return [[a1x, a1y], [a2x, a2y]]
-    }
+    const ans = repeat ? [p1, p2] : []
 
-    const ans = [p1, p2]
-
-    while (this.contains([a1x, a1y])) {
+    while (this._contains(a1x, a1y)) {
       ans.push([a1x, a1y])
+      if (!repeat) {
+        break
+      }
+
       a1x -= dx
       a1y -= dy
     }
 
-    while (this.contains([a2x, a2y])) {
+    while (this._contains(a2x, a2y)) {
       ans.push([a2x, a2y])
+      if (!repeat) {
+        break
+      }
+
       a2x += dx
       a2y += dy
     }
