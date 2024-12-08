@@ -29,7 +29,7 @@ continuation_indent_size = 4
 tab_width = 4
 use_parentheses = true
 
-[*.lua]
+[*.{js,lua}]
 max_line_length = 80
 indent_style = space
 indent_size = 2
