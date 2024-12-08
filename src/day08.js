@@ -1,35 +1,38 @@
 #!/usr/bin/env node
 
+const { readFileSync } = require('fs')
 const { join } = require('path')
-const fs = require('fs')
 
 const INPUT_PATH = join(__dirname, '..', 'inputs', 'day08.txt')
 const [X, Y] = [0, 1]
 
+const EMPTY_SPOT = '.'
+
 /** @typedef {[number, number]} Point */
 /** @typedef {Map<string, Point[]>} FreqToPointsMap */
-/** @typedef {Set<number>} NumberSet */
+/** @typedef {Set<number>} HashSet */
 
 const loadInput = (inputPath = INPUT_PATH) => {
-  return fs.readFileSync(inputPath).toString().trim()
+  return readFileSync(inputPath, 'utf-8').trim()
 }
 
 /**
- * @param {FreqToPointsMap} antennas
- * @param {string} freq
- * @param {Point} pos
+ * @template K, V
+ * @param {Map<K, V[]>} map
+ * @param {K} key
+ * @param {V} val
  */
-const pushValue = (antennas, freq, pos) => {
-  points = antennas.get(freq)
+const pushValueToMap = (map, key, val) => {
+  points = map.get(key)
   if (points) {
-    points.push(pos)
+    points.push(val)
   } else {
-    antennas.set(freq, [pos])
+    map.set(key, [val])
   }
 }
 
-/** @param {Point} _ */
-const hashPoint = ([x, y]) => (x << 10) ^ y
+/** @param {Point} p */
+const hashPoint = (p) => (p[X] << 16) ^ p[Y]
 
 class AntennasMap {
   /**
@@ -48,28 +51,6 @@ class AntennasMap {
     this._height = height
   }
 
-  /** @param {string} gridStr */
-  static parse(gridStr) {
-    /** @type {FreqToPointsMap} */
-    const map = new Map()
-    const rows = gridStr.split('\n').map(line => line.split(''))
-
-    const height = rows.length
-    let width = 0
-
-    for (const [y, row] of rows.entries()) {
-      width = Math.max(width, row.length)
-
-      for (const [x, freq] of row.entries()) {
-        if (freq !== '.') {
-          pushValue(map, freq, [x, y])
-        }
-      }
-    }
-
-    return new this(map, width, height)
-  }
-
   /**
    * @param {number}
    * @param {number}
@@ -78,8 +59,46 @@ class AntennasMap {
     return 0 <= x && x < this._width && 0 <= y && y < this._height
   }
 
+  /**
+   * @param {Point} p1
+   * @param {Point} p2
+   */
+  _getAntinodes(p1, p2, repeat = false) {
+    const dx = p2[X] - p1[X]
+    const dy = p2[Y] - p1[Y]
+    let ax = p1[X] - dx
+    let ay = p1[Y] - dy
+
+    const antinodes = repeat ? [p1, p2] : []
+
+    while (this._contains(ax, ay)) {
+      antinodes.push([ax, ay])
+      if (!repeat) {
+        break
+      }
+
+      ax -= dx
+      ay -= dy
+    }
+
+    ax = p2[X] + dx
+    ay = p2[Y] + dy
+
+    while (this._contains(ax, ay)) {
+      antinodes.push([ax, ay])
+      if (!repeat) {
+        break
+      }
+
+      ax += dx
+      ay += dy
+    }
+
+    return antinodes
+  }
+
   countUniqueAntinodes(repeat = false) {
-    /** @type {NumberSet} */
+    /** @type {HashSet} */
     const antinodes = new Set()
 
     for (const freqPoints of this._antennas.values()) {
@@ -100,41 +119,26 @@ class AntennasMap {
     return antinodes.size
   }
 
-  /**
-   * @param {Point} p1
-   * @param {Point} p2
-   */
-  _getAntinodes(p1, p2, repeat = false) {
-    const dx = p2[X] - p1[X]
-    const dy = p2[Y] - p1[Y]
-    let a1x = p1[X] - dx
-    let a1y = p1[Y] - dy
-    let a2x = p2[X] + dx
-    let a2y = p2[Y] + dy
+  /** @param {string} gridStr */
+  static parse(gridStr) {
+    /** @type {FreqToPointsMap} */
+    const map = new Map()
+    const rows = gridStr.split('\n').map(line => line.split(''))
 
-    const ans = repeat ? [p1, p2] : []
+    const height = rows.length
+    let width = 0
 
-    while (this._contains(a1x, a1y)) {
-      ans.push([a1x, a1y])
-      if (!repeat) {
-        break
+    for (const [y, row] of rows.entries()) {
+      width = Math.max(width, row.length)
+
+      for (const [x, freq] of row.entries()) {
+        if (freq !== EMPTY_SPOT) {
+          pushValueToMap(map, freq, [x, y])
+        }
       }
-
-      a1x -= dx
-      a1y -= dy
     }
 
-    while (this._contains(a2x, a2y)) {
-      ans.push([a2x, a2y])
-      if (!repeat) {
-        break
-      }
-
-      a2x += dx
-      a2y += dy
-    }
-
-    return ans
+    return new this(map, width, height)
   }
 }
 
