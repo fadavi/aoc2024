@@ -104,9 +104,9 @@ class AntennasMap {
     for (const freqPoints of this._antennas.values()) {
       const len = freqPoints.length
 
-      for (let i = 0; i < len; i++) {
+      for (let j, i = 0; i < len; ++i) {
         const pi = freqPoints[i]
-        for (let j = i + 1; j < len; j++) {
+        for (j = i + 1; j < len; ++j) {
           const pj = freqPoints[j]
           const ans = this._getAntinodes(pi, pj, repeat)
           for (const an of ans) {
