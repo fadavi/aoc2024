@@ -1,6 +1,6 @@
 #!/usr/bin/env sbcl --script
 
-(defconstant +INPUT-FILE-PATH+ "../inputs/day10.txt")
+(defconstant +INPUT-FILE-PATH+ "inputs/day10.txt")
 (defconstant +EMPTY-HASH-TABLE+ (make-hash-table))
 
 (defstruct topo rows cols data reachable-peaks)
