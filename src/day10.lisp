@@ -1,3 +1,5 @@
+#!/usr/bin/env sbcl --script
+
 (defvar +input-file-path+ "../inputs/day10.txt")
 (defvar +empty-hash-table+ (make-hash-table))
 
@@ -84,7 +86,7 @@
 	  sum (loop for x from 0 below (topo-cols topo)
 		    for height = (topo-height-at topo y x)
 		    when (zerop height)
-		      sum (funcall acc-fn (topo-reachable-peaks-at topo y x)))))) 
+		      sum (funcall acc-fn (topo-reachable-peaks-at topo y x))))))
 
 (defun topo-total-score-by-uniq-trails (topo)
   (loop for y from 0 below (topo-rows topo)
