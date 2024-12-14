@@ -3,19 +3,6 @@
 (defvar +input-file-path+ "../inputs/day10.txt")
 (defvar +empty-hash-table+ (make-hash-table))
 
-(defun hash-table-str (ht)
-  "TODO: remove this function as soon as the implementation is done"
-  (with-output-to-string (out)
-    (write-char #\{ out)
-    (let ((first t))
-      (maphash (lambda (key value)
-                 (unless first
-                   (write-string ", " out))
-                 (setf first nil)
-                 (format out "~a: ~a" key value))
-        ht))
-    (write-char #\} out)))
-
 (defstruct topo rows cols data reachable-peaks)
 
 (defun read-lines (file-path)
@@ -88,13 +75,6 @@
             when (zerop height)
             sum (funcall acc-fn (topo-reachable-peaks-at topo y x))))))
 
-(defun topo-total-score-by-uniq-trails (topo)
-  (loop for y from 0 below (topo-rows topo)
-    sum (loop for x from 0 below (topo-cols topo)
-          for height = (topo-height-at topo y x)
-          when (zerop height)
-          sum (hash-table-count (topo-reachable-peaks-at topo y x)))))
-
 (defun main ()
   (let* ((lines (read-lines +input-file-path+))
           (topo (topo-parse lines))
@@ -105,6 +85,7 @@
 
 (mapcar #'compile '(read-lines
                      topo-parse
+                     hash-table-sum-values
                      merge-reachable-peaks
                      topo-height-at
                      topo-contains-p
