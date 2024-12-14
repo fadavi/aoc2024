@@ -29,7 +29,7 @@ continuation_indent_size = 4
 tab_width = 4
 use_parentheses = true
 
-[*.{php,js,lua,cc}]
+[*.{php,js,lua,cc,lisp}]
 max_line_length = 80
 indent_style = space
 indent_size = 2
@@ -40,4 +40,3 @@ spaces_before_comment = 2
 continuation_indent_size = 4
 tab_width = 2
 use_parentheses = true
-
