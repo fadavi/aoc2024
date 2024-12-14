@@ -8,9 +8,9 @@
 (defun read-lines (file-path)
     (let ((file (open file-path)))
         (loop for line = (read-line file nil)
-            for vect = (map 'list #'digit-char-p line)
-            while vect
-            collect vect)))
+            for row = (map 'list #'digit-char-p line)
+            while row
+            collect row)))
 
 (defun topo-parse (data)
     (let* ((rows (length data))
