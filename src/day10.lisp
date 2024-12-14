@@ -23,9 +23,6 @@
 	  while vect
 	  collect vect)))
 
-(defun point-hash (y x)
-  (+ (* 1000 y) x))
-
 (defun topo-parse (data)
   (let* ((rows (length data))
 	 (cols (length (car data)))
@@ -36,10 +33,16 @@
      :data (make-array dims :initial-contents data)
      :reachable-peaks (make-array dims :initial-element nil))))
 
-(defun hash-table-append (dest &rest hash-tables)
-  (dolist (ht hash-tables)
+(defun hash-table-sum-values (ht)
+  (let ((sum 0))
+    (maphash (lambda (_ v) (incf sum v)) ht)
+    sum))
+
+(defun merge-reachable-peaks (dest &rest all-peaks)
+  (dolist (ht all-peaks)
     (maphash
-     (lambda (k v) (setf (gethash k dest) v))
+     (lambda (k v)
+       (incf (gethash k dest 0) v))
      ht)))
 
 (defun topo-height-at (topo y x)
@@ -61,12 +64,12 @@
        (aref reachable-peaks y x))
       ((= height 9)
        (let ((peaks (make-hash-table)))
-	 (setf (gethash `(,y ,x) peaks) t)
+	 (setf (gethash `(,y ,x) peaks) 1)
 	 (setf (aref reachable-peaks y x) peaks)
 	 peaks))
       (t
        (let ((peaks (make-hash-table)))
-	 (hash-table-append
+	 (merge-reachable-peaks
 	  peaks
 	  (topo-reachable-peaks-at topo (1- y) x height)
 	  (topo-reachable-peaks-at topo (1+ y) x height)
@@ -75,7 +78,15 @@
 	 (setf (aref reachable-peaks y x) peaks)
 	 peaks)))))
 
-(defun topo-total-score (topo)
+(defun topo-total-score (topo &optional (by-uniq-trailends t))
+  (let ((acc-fn (if by-uniq-trailends #'hash-table-count #'hash-table-sum-values)))
+    (loop for y from 0 below (topo-rows topo)
+	  sum (loop for x from 0 below (topo-cols topo)
+		    for height = (topo-height-at topo y x)
+		    when (zerop height)
+		      sum (funcall acc-fn (topo-reachable-peaks-at topo y x)))))) 
+
+(defun topo-total-score-by-uniq-trails (topo)
   (loop for y from 0 below (topo-rows topo)
 	sum (loop for x from 0 below (topo-cols topo)
 		  for height = (topo-height-at topo y x)
@@ -85,12 +96,14 @@
 (defun main ()
   (let* ((lines (read-lines +input-file-path+))
 	 (topo (topo-parse lines))
-	 (total-score (topo-total-score topo)))
-    (format t "Part 1 - Total Score: ~D~%" total-score)))
+	 (part1-score (topo-total-score topo))
+	 (part2-score (topo-total-score topo nil)))
+    (format t "Part 1: ~D~%" part1-score)
+    (format t "Part 2: ~D~%" part2-score)))
 
 (mapcar #'compile '(read-lines
 		    topo-parse
-		    hash-table-append
+		    merge-reachable-peaks
 		    topo-height-at
 		    topo-contains-p
 		    topo-reachable-peaks-at
