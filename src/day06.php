@@ -26,7 +26,7 @@ function parse_grid(string $path = INPUT_FILE_PATH): array
   );
 }
 
-function find_guard(array $grid): array
+function find_guard(array &$grid): array
 {
   $caret_code = ord('^');
   foreach ($grid as $y => $row) {
@@ -53,7 +53,7 @@ function get_next_pos(
   int $guard_x,
   int $guard_dir,
 ): array {
-  list($next_y, $next_x) = step_forward($guard_y, $guard_x, $guard_dir);
+  [$next_y, $next_x] = step_forward($guard_y, $guard_x, $guard_dir);
 
   if (!is_obstacle($grid, $next_y, $next_x)) {
     return [$next_y, $next_x, $guard_dir];
@@ -72,60 +72,51 @@ function is_obstacle(array &$grid, int $y, int $x): bool
   return ($grid[$y][$x] ?? FLOOR) === OBSTACLE;
 }
 
-function encode_point(int $y, int $x)
+function hash_point(int $y, int $x)
 {
-  return $y << 10 | $x;
+  return ($y << 10) | $x;
 }
 
 function is_in_loop(
   array &$grid,
-  array $visited,
+  array &$visited,
   int $guard_y,
   int $guard_x,
   int $guard_dir,
 ): bool {
+  $visited_here = [];
+
   do {
-    list($next_y, $next_x, $next_dir) = get_next_pos(
+    [$guard_y, $guard_x, $guard_dir] = get_next_pos(
       $grid,
       $guard_y,
       $guard_x,
       $guard_dir,
     );
 
-    $next_encoded = encode_point($next_y, $next_x);
-    if ((($visited[$next_encoded] ?? 0) & $next_dir) === $next_dir) {
+    $next_encoded = hash_point($guard_y, $guard_x);
+    $visited_dir = $visited[$next_encoded] ?? $visited_here[$next_encoded] ?? 0;
+    if ($visited_dir === $guard_dir) {
       return true;
     }
 
-    $visited[$next_encoded] ??= $next_dir;
-    $visited[$next_encoded] |= $next_dir;
-
-    $guard_y = $next_y;
-    $guard_x = $next_x;
-    $guard_dir = $next_dir;
-
-    if (is_inside($grid, $guard_y, $guard_x)) {
-      $grid[$guard_y][$guard_x] = $guard_dir;
-    }
-
+    $visited_here[$next_encoded] = $guard_dir;
   } while (is_inside($grid, $guard_y, $guard_x));
 
   return false;
 }
 
-function get_visited_positions(
-  array $grid,
-  int $guard_y,
-  int $guard_x,
-  int $guard_dir = UP,
-): array {
+function get_visited_positions(array &$grid): array {
+  [$guard_y, $guard_x] = find_guard($grid);
+  $guard_dir = UP;
+
   $visited = [
-    encode_point($guard_y, $guard_x) => $guard_dir,
+    hash_point($guard_y, $guard_x) => $guard_dir,
   ];
   $loops = [];
 
   for(;;) {
-    list($next_y, $next_x, $next_dir) = get_next_pos(
+    [$next_y, $next_x, $next_dir] = get_next_pos(
       $grid,
       $guard_y,
       $guard_x,
@@ -135,9 +126,10 @@ function get_visited_positions(
       break;
     }
 
-    $next_encoded = encode_point($next_y, $next_x);
+    $next_encoded = hash_point($next_y, $next_x);
+    $already_visited = isset($visited[$next_encoded]);
 
-    if (!isset($visited[$next_encoded])) {
+    if (!$already_visited) {
       $grid[$next_y][$next_x] = OBSTACLE;
       if (is_in_loop($grid, $visited, $guard_y, $guard_x, $guard_dir)) {
         $loops[$next_encoded] = true;
@@ -145,9 +137,7 @@ function get_visited_positions(
       $grid[$next_y][$next_x] = FLOOR;
     }
 
-    $visited[$next_encoded] ??= $next_dir;
-    $visited[$next_encoded] |= $next_dir;
-
+    $visited[$next_encoded] = $next_dir;
     $guard_y = $next_y;
     $guard_x = $next_x;
     $guard_dir = $next_dir;
@@ -158,8 +148,7 @@ function get_visited_positions(
 
 function main() {
   $grid = parse_grid();
-  list($guard_y, $guard_x) = find_guard($grid);
-  list($n_visited, $n_loops) = get_visited_positions($grid, $guard_y, $guard_x);
+  [$n_visited, $n_loops] = get_visited_positions($grid);
 
   echo "Part 1: $n_visited" . PHP_EOL;
   echo "Part 2: $n_loops" . PHP_EOL;
