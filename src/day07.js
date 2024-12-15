@@ -12,6 +12,10 @@ const parseInput = (inputFilePath = INPUT_FILE_PATH) => {
     .map(ln => ln.split(' ').map(s => parseInt(s)))
 }
 
+/**
+ * @param {number} a
+ * @param {number} b
+ */
 const concat = (a, b) => {
   if (b < 1e1) {
     return a * 1e1 + b
@@ -33,6 +37,12 @@ const concat = (a, b) => {
   return a * 10 ** digits + b
 }
 
+/**
+ * @param {number[]} ops
+ * @param {number} acc
+ * @param {number} index
+ * @param {boolean} testConcat
+ */
 const isEquationPossible = (ops, acc, index, testConcat) => {
   const result = ops[0]
   const op = ops[index]
@@ -61,6 +71,10 @@ const isEquationPossible = (ops, acc, index, testConcat) => {
   return nextAcc <= result && isEquationPossible(ops, nextAcc, index, testConcat)
 }
 
+/**
+ * @param {number[][]} equations
+ * @param {boolean} testConcat
+ */
 const getSumOfValidResults = (equations, testConcat) => {
   return equations
     .filter(ops => isEquationPossible(ops, ops[1], 2, testConcat))
